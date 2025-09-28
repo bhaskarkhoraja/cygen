@@ -5,3 +5,26 @@ export type User = {
   createdAt: string
   updatedAt: string
 }
+
+export type Order = {
+  id: string
+  userId: string
+  createdAt: string
+  updatedAt: string
+  orderItems: {
+    id: string
+    orderId: string
+    productId: string
+    quantity: number
+    createdAt: string
+    updatedAt: string
+    product: {
+      id: string
+      name: string
+      description: string
+      price: number
+      createdAt: string
+      updatedAt: string
+    }
+  }[]
+}
