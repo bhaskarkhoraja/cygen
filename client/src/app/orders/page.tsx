@@ -1,3 +1,4 @@
+import AddOrder from "@/components/order/add-order"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -5,6 +6,7 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
+  CardFooter,
 } from "@/components/ui/card"
 import {
   Dialog,
@@ -16,8 +18,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { myFetch } from "@/types/api"
-import { Order } from "@/types/data"
+import { Order, Product } from "@/types/data"
 import { redirect } from "next/navigation"
+import Pagination from "@/components/ui/pagination"
 
 export default async function Orders({
   searchParams,
@@ -25,6 +28,12 @@ export default async function Orders({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const params = await searchParams
+  const page = parseInt(
+    Array.isArray(params.page) ? params.page[0] : params.page || "1",
+  )
+  const limit = parseInt(
+    Array.isArray(params.limit) ? params.limit[0] : params.limit || "5",
+  )
 
   if (!params.user || Array.isArray(params.user)) {
     redirect("/")
@@ -54,10 +63,20 @@ export default async function Orders({
 
   const orders = await myFetch<Order[]>(
     `${process.env.API_URL}/orders?${queryParams.toString()}`,
+    { next: { tags: ["orders"] } },
   )
 
+  if (!("pagination" in orders)) {
+    redirect("/")
+  }
+
+  const products = await myFetch<Product[]>(`${process.env.API_URL}/products`)
+
   return (
-    <Card className="w-full max-w-sm">
+    <Card
+      className="w-full max-w-sm"
+      key={Date.now()}
+    >
       <CardHeader>
         <CardTitle>List of order</CardTitle>
         <CardDescription>
@@ -66,7 +85,7 @@ export default async function Orders({
       </CardHeader>
       <CardContent>
         {orders.status ? (
-          <div>
+          <div className="space-y-2">
             {orders.data.length > 0 ? (
               orders.data.map((order) => (
                 <Dialog key={order.id}>
@@ -117,7 +136,10 @@ export default async function Orders({
                     </DialogHeader>
                     <div className="space-y-2">
                       {order.orderItems.map((orderItem) => (
-                        <div className="rounded-sm border px-4 py-2" key={orderItem.id}>
+                        <div
+                          className="rounded-sm border px-4 py-2"
+                          key={orderItem.id}
+                        >
                           <div className="flex items-center justify-between ">
                             <p className="text-sm">{orderItem.product.name}</p>
                             <p className="text-sm">
@@ -152,6 +174,19 @@ export default async function Orders({
         ) : (
           <>Something went wrong.</>
         )}
+
+        <CardFooter className="px-0 pt-2">
+          <Pagination
+            totalItems={orders.pagination?.total || 1}
+            currentPage={page}
+            limit={limit}
+            maxVisiblePages={3}
+          />
+          <AddOrder
+            products={products}
+            userId={params.user}
+          />
+        </CardFooter>
       </CardContent>
     </Card>
   )

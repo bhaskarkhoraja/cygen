@@ -32,7 +32,7 @@ export default async function Home() {
               >
                 <div className="space-y-1">
                   <p className="text-sm">{user.name}</p>
-                  <p className="text-xs text-muted-foreground">{user.id}</p>
+                  <p className="text-xs text-muted-foreground">{user.email}</p>
                 </div>
                 <ChevronsRight className="text-muted-foreground" />
               </Link>

@@ -18,13 +18,15 @@ export type Order = {
     quantity: number
     createdAt: string
     updatedAt: string
-    product: {
-      id: string
-      name: string
-      description: string
-      price: number
-      createdAt: string
-      updatedAt: string
-    }
+    product: Product
   }[]
+}
+
+export type Product = {
+  id: string
+  name: string
+  description: string
+  price: number
+  createdAt: string
+  updatedAt: string
 }

@@ -13,6 +13,13 @@ export type ApiResponse<T> =
     status: true
     message: string
     data: T
+    pagination?: {
+      total: number
+      page: number
+      pageSize: number
+      nextPage: number | null
+      prevPage: number | null
+    }
     errors: { [key: string]: string | string[] } | null
   }
   | {
