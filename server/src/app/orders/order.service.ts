@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { UserService } from '../users/user.service';
 import { ProductService } from '../products/product.service';
+import { Cache } from '@nestjs/cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class OrderService {
@@ -9,6 +11,7 @@ export class OrderService {
     private prismaService: PrismaService,
     private userService: UserService,
     private productService: ProductService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async getOrders(
@@ -17,6 +20,12 @@ export class OrderService {
     pageSize: number,
     search: string,
   ) {
+    const cacheKey = `orders:${userId}:${page}:${pageSize}:${search}`;
+    const cached = await this.cacheManager.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
     const skip = (page - 1) * pageSize;
 
     const whereCondition = {
