@@ -1,0 +1,9 @@
+# dependencies
+/dist
+/node_modules
+
+# production
+/build
+
+# environment variables
+.env
