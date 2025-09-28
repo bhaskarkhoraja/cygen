@@ -66,90 +66,83 @@ export default async function Orders({
       </CardHeader>
       <CardContent>
         {orders.status ? (
-          <div className="space-y-2">
+          <div>
             {orders.data.length > 0 ? (
               orders.data.map((order) => (
                 <Dialog key={order.id}>
-                  <form>
-                    <DialogTrigger asChild>
-                      <Button
-                        key={order.id}
-                        variant={"outline"}
-                        className="flex items-center justify-between hover:bg-muted px-4 py-2 rounded-md border w-full h-fit cursor-pointer"
-                      >
-                        <div className="space-y-1 w-full">
-                          <div className="flex items-center justify-between w-full">
-                            <p className="text-sm">
-                              {new Date(order.createdAt).toLocaleDateString(
-                                "en-US",
-                                {
-                                  weekday: "short",
-                                  day: "2-digit",
-                                  month: "long",
-                                  year: "numeric",
-                                },
-                              )}
-                            </p>
-                            <p className="text-sm">
-                              $
-                              {order.orderItems.reduce(
-                                (acc, o) => acc + o.quantity * o.product.price,
-                                0,
-                              )}
-                            </p>
-                          </div>
-                          <p className="text-xs text-muted-foreground text-left">
-                            Items: {order.orderItems.length}{" "}
+                  <DialogTrigger asChild>
+                    <Button
+                      key={order.id}
+                      variant={"outline"}
+                      className="flex items-center justify-between hover:bg-muted px-4 py-2 rounded-md border w-full h-fit cursor-pointer"
+                    >
+                      <div className="space-y-1 w-full">
+                        <div className="flex items-center justify-between w-full">
+                          <p className="text-sm">
+                            {new Date(order.createdAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                weekday: "short",
+                                day: "2-digit",
+                                month: "long",
+                                year: "numeric",
+                              },
+                            )}
+                          </p>
+                          <p className="text-sm">
+                            $
+                            {order.orderItems.reduce(
+                              (acc, o) => acc + o.quantity * o.product.price,
+                              0,
+                            )}
                           </p>
                         </div>
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>Order Details</DialogTitle>
-                        <DialogDescription>
-                          {new Date(order.createdAt).toLocaleDateString(
-                            "en-US",
-                            {
-                              weekday: "short",
-                              day: "2-digit",
-                              month: "long",
-                              year: "numeric",
-                            },
-                          )}
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-2">
-                        {order.orderItems.map((orderItem) => (
-                          <div className="rounded-sm border px-4 py-2">
-                            <div className="flex items-center justify-between ">
-                              <p className="text-sm">
-                                {orderItem.product.name}
-                              </p>
-                              <p className="text-sm">
-                                ${orderItem.product.price * orderItem.quantity}
-                              </p>
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                              Qty: {orderItem.quantity}
+                        <p className="text-xs text-muted-foreground text-left">
+                          Items: {order.orderItems.length}{" "}
+                        </p>
+                      </div>
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Order Details</DialogTitle>
+                      <DialogDescription>
+                        {new Date(order.createdAt).toLocaleDateString("en-US", {
+                          weekday: "short",
+                          day: "2-digit",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-2">
+                      {order.orderItems.map((orderItem) => (
+                        <div className="rounded-sm border px-4 py-2" key={orderItem.id}>
+                          <div className="flex items-center justify-between ">
+                            <p className="text-sm">{orderItem.product.name}</p>
+                            <p className="text-sm">
+                              ${orderItem.product.price * orderItem.quantity}
                             </p>
                           </div>
-                        ))}
-                      </div>
-                      <DialogFooter>
-                        <p>
-                          <span className="text-muted-foreground text-xs">
-                            Sub Total:
-                          </span>{" "}
-                          $
-                          {order.orderItems.reduce(
-                            (acc, o) => acc + o.quantity * o.product.price,
-                            0,
-                          )}
-                        </p>
-                      </DialogFooter>
-                    </DialogContent>
-                  </form>
+                          <p className="text-xs text-muted-foreground">
+                            Qty: {orderItem.quantity}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                    <DialogFooter>
+                      <p>
+                        <span className="text-muted-foreground text-xs">
+                          Sub Total:
+                        </span>{" "}
+                        $
+                        {order.orderItems.reduce(
+                          (acc, o) => acc + o.quantity * o.product.price,
+                          0,
+                        )}
+                      </p>
+                    </DialogFooter>
+                  </DialogContent>
                 </Dialog>
               ))
             ) : (
