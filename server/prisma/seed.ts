@@ -15,6 +15,13 @@ async function main() {
     },
   });
 
+  const user2 = await prisma.user.create({
+    data: {
+      email: 'subhash@cygen.com',
+      name: 'Subhash Arukali',
+    },
+  });
+
   const product1 = await prisma.product.create({
     data: {
       name: 'Orange',
