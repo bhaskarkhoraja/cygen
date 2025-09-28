@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { addOrders } from "@/actions/order"
 import { useState } from "react"
+import { LoaderCircle } from "lucide-react"
 
 export const formSchema = z.object({
   userId: z.string(),
@@ -53,6 +54,7 @@ const AddOrder = ({
     },
   })
   const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (values.data.length == 0) {
@@ -61,6 +63,8 @@ const AddOrder = ({
       })
       return
     }
+
+    setLoading(true)
 
     const response = await addOrders(values)
 
@@ -76,6 +80,7 @@ const AddOrder = ({
         description: "Failed to add orders",
       })
     }
+    setLoading(false)
   }
 
   return (
@@ -194,8 +199,9 @@ const AddOrder = ({
             type="submit"
             form="myform"
             className="cursor-pointer"
+            disabled={loading}
           >
-            Add order
+            {loading ? <LoaderCircle className="mr-2 animate-spin" /> : "Add order"}
           </Button>
         </DialogFooter>
       </DialogContent>
