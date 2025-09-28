@@ -4,34 +4,20 @@ import { UserService } from '../users/user.service';
 import { ProductService } from '../products/product.service';
 import { Cache } from '@nestjs/cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Prisma } from '@prisma/client';
 
-type Order = ({
-  orderItems: ({
-    product: {
-      id: string;
-      createdAt: Date;
-      updatedAt: Date;
-      name: string;
-      description: string | null;
-      price: number;
+type OrderWithItemsAndProduct = Prisma.OrderGetPayload<{
+  include: {
+    orderItems: {
+      include: {
+        product: true;
+      };
     };
-  } & {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    orderId: string;
-    productId: string;
-    quantity: number;
-  })[];
-} & {
-  id: string;
-  userId: string;
-  createdAt: Date;
-  updatedAt: Date;
-})[];
+  };
+}>;
 
 interface PaginatedOrders {
-  data: Order[];
+  data: OrderWithItemsAndProduct[];
   total: number;
   page: number;
   pageSize: number;
@@ -91,12 +77,16 @@ export class OrderService {
       }),
     ]);
 
-    return {
+    const result = {
       data: orders,
       total: total,
       page: page,
       pageSize: pageSize,
     };
+
+    await this.cacheManager.set(cacheKey, result, 30);
+
+    return result;
   }
 
   async createOrder(data: {
