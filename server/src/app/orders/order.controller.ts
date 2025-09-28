@@ -59,28 +59,32 @@ export class OrderController {
 
   @Post('/orders')
   async createOrder(
-    @Body() body: { userId: string; productId: string; quantity: number },
+    @Body()
+    body: {
+      userId: string;
+      products: { productId: string; quantity: number }[];
+    },
   ) {
-    const { userId, productId, quantity } = body;
+    const { userId, products } = body;
 
     if (!userId) {
       return { status: false, error: 'user id is required' };
     }
-    if (!productId) {
-      return { status: false, error: 'product id is required' };
-    }
-    if (!quantity || quantity < 1) {
-      return { status: false, error: 'quantity must be 1 or more' };
-    }
+
+    products.forEach((product) => {
+      if (!product.productId) {
+        return { status: false, error: 'product id is required' };
+      }
+
+      if (!isValidUUID(product.productId)) {
+        return { status: false, error: 'Product id is invalid' };
+      }
+    });
 
     if (!isValidUUID(userId)) {
       return { status: false, error: 'User id is invalid' };
     }
 
-    if (!isValidUUID(productId)) {
-      return { status: false, error: 'Product id is invalid' };
-    }
-
-    return this.orderService.createOrder({ userId, productId, quantity });
+    return this.orderService.createOrder({ userId, products });
   }
 }

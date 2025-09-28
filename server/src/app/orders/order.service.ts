@@ -5,6 +5,38 @@ import { ProductService } from '../products/product.service';
 import { Cache } from '@nestjs/cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
+type Order = ({
+  orderItems: ({
+    product: {
+      id: string;
+      createdAt: Date;
+      updatedAt: Date;
+      name: string;
+      description: string | null;
+      price: number;
+    };
+  } & {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    orderId: string;
+    productId: string;
+    quantity: number;
+  })[];
+} & {
+  id: string;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+})[];
+
+interface PaginatedOrders {
+  data: Order[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 @Injectable()
 export class OrderService {
   constructor(
@@ -19,11 +51,11 @@ export class OrderService {
     page: number,
     pageSize: number,
     search: string,
-  ) {
+  ): Promise<PaginatedOrders> {
     const cacheKey = `orders:${userId}:${page}:${pageSize}:${search}`;
     const cached = await this.cacheManager.get(cacheKey);
     if (cached) {
-      return cached;
+      return cached as PaginatedOrders;
     }
 
     const skip = (page - 1) * pageSize;
@@ -61,28 +93,39 @@ export class OrderService {
 
     return {
       data: orders,
-      total,
-      page,
-      pageSize,
+      total: total,
+      page: page,
+      pageSize: pageSize,
     };
   }
 
   async createOrder(data: {
     userId: string;
-    productId: string;
-    quantity: number;
+    products: { productId: string; quantity: number }[];
   }) {
-    const { userId, productId, quantity } = data;
+    const { userId, products } = data;
 
     const userExists = await this.userService.validateUserId(userId);
     if (!userExists) {
       return { status: false, error: 'user id is invalid' };
     }
 
-    const productExists =
-      await this.productService.validateProductId(productId);
-    if (!productExists) {
-      return { status: false, error: 'product id is invalid' };
+    for (const product of products) {
+      const productExists = await this.productService.validateProductId(
+        product.productId,
+      );
+      if (!productExists) {
+        return {
+          status: false,
+          error: `product id is invalid: ${product.productId}`,
+        };
+      }
+      if (!product.quantity || product.quantity < 1) {
+        return {
+          status: false,
+          error: 'quantity must be 1 or more for every product',
+        };
+      }
     }
 
     const order = await this.prismaService.$transaction(async (tx) => {
@@ -90,10 +133,10 @@ export class OrderService {
         data: {
           userId,
           orderItems: {
-            create: {
-              productId,
-              quantity,
-            },
+            create: products.map((p) => ({
+              productId: p.productId,
+              quantity: p.quantity,
+            })),
           },
         },
         include: {
