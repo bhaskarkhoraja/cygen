@@ -62,10 +62,10 @@ export class OrderController {
     @Body()
     body: {
       userId: string;
-      products: { productId: string; quantity: number }[];
+      data: { productId: string; quantity: number }[];
     },
   ) {
-    const { userId, products } = body;
+    const { userId, data: products } = body;
 
     if (!userId) {
       return { status: false, error: 'user id is required' };
