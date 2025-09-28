@@ -201,7 +201,7 @@ const AddOrder = ({
             className="cursor-pointer"
             disabled={loading}
           >
-            {loading ? <LoaderCircle className="mr-2 animate-spin" /> : "Add order"}
+            {loading ? <LoaderCircle className="animate-spin" /> : "Add order"}
           </Button>
         </DialogFooter>
       </DialogContent>
